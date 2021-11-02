@@ -44,9 +44,9 @@ def find_outs(addresses, start_height, end_height, progress_hook=None):
                 scriptpubkey = out['scriptPubKey']
                 # if scriptpubkey['type'] not in scriptpubkey_types:
                 #     continue
-                out_addresses = scriptpubkey.get('addresses', [])
-                if len(out_addresses) > 0 and out_addresses[0] in outs:
-                    outs[out_addresses[0]].append((tx['txid'], out['n'], to_sat(out['value'])))
+                out_address = scriptpubkey.get('address')
+                if out_address in outs:
+                    outs[out_address].append((tx['txid'], out['n'], to_sat(out['value'])))
     return outs
 
 def filter_spent(outs):
@@ -54,7 +54,7 @@ def filter_spent(outs):
     for address in outs.keys():
         for out in outs[address]:
             out_info = rpc_request('gettxout', out[0], out[1])
-            if out_info is not None and address in out_info['scriptPubKey']['addresses']:
+            if out_info is not None and address == out_info['scriptPubKey']['address']:
                 unspent_outs[address].append(out)
     return unspent_outs
 
